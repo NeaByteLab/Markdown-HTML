@@ -5,10 +5,11 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "outDir": "./dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@root/*": ["src/*"],
+      "@scripts/*": ["scripts/*"],
+      "@root/*": ["src/*"]
     },
     "tsBuildInfoFile": ".tsbuildinfo",
     "importsNotUsedAsValues": "remove",
@@ -41,6 +42,6 @@
     "useUnknownInCatchVariables": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "scripts/**/*"],
   "exclude": ["node_modules", "dist"]
 }

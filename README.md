@@ -4,10 +4,7 @@ Converts Markdown text to HTML syntax with TypeScript type safety, streaming sup
 
 ## 🎬 Preview
 
-<video width="100%" controls>
-  <source src="./assets/preview.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![Preview](./assets/preview.gif)
 
 > *Live demo showing LLM-style streaming markdown to HTML conversion with real-time rendering*
 

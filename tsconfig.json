@@ -8,8 +8,9 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@scripts/*": ["scripts/*"],
-      "@root/*": ["src/*"]
+      "@root/*": ["src/*"],
+      "@core/*": ["src/core/*"],
+      "@interfaces/*": ["src/interfaces/*"]
     },
     "tsBuildInfoFile": ".tsbuildinfo",
     "importsNotUsedAsValues": "remove",
@@ -42,6 +43,6 @@
     "useUnknownInCatchVariables": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src/**/*", "scripts/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

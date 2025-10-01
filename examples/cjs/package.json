@@ -1,0 +1,17 @@
+{
+  "name": "markdown-html-cjs-example",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "CommonJS example for @neabyte/markdown-html",
+  "main": "non-stream.js",
+  "scripts": {
+    "test:stream": "node stream.js",
+    "test:non-stream": "node non-stream.js"
+  },
+  "dependencies": {
+    "@neabyte/markdown-html": "file:../../"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

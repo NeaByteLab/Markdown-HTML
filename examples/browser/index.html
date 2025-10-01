@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Markdown-HTML Browser Example</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        padding: 20px;
+        line-height: 1.6;
+        background-color: #f8f9fa;
+      }
+      .main-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        height: calc(100vh - 80px);
+        max-width: none;
+      }
+      .left-column {
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        gap: 20px;
+        height: 100%;
+      }
+      .right-column {
+        height: 100%;
+      }
+      .input-section,
+      .output-section {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        box-sizing: border-box;
+      }
+      .right-column .input-section {
+        display: block;
+        height: auto;
+      }
+      .input-section h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #333;
+        flex-shrink: 0;
+      }
+      .output-section h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #333;
+        flex-shrink: 0;
+      }
+      textarea {
+        width: 100%;
+        flex: 1;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 10px;
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 14px;
+        resize: none;
+        box-sizing: border-box;
+        min-height: 0;
+      }
+      .button-container {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        flex-shrink: 0;
+      }
+      button {
+        background: #007acc;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        flex: 1;
+      }
+      button:hover {
+        background: #005999;
+      }
+      .output {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 10px;
+        flex: 1;
+        background: #f9f9f9;
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+        overflow-y: auto;
+        overflow-x: hidden;
+        box-sizing: border-box;
+        scroll-behavior: smooth;
+        min-height: 0;
+      }
+      .rendered {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 15px;
+        background: white;
+        overflow-y: auto;
+        overflow-x: hidden;
+        box-sizing: border-box;
+        scroll-behavior: smooth;
+        height: calc(100vh - 120px);
+        position: relative;
+      }
+      .status {
+        margin-top: 10px;
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      /* Markdown-HTML Library Styles */
+      .markdown-content {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .markdown-content h1,
+      .markdown-content h2,
+      .markdown-content h3,
+      .markdown-content h4,
+      .markdown-content h5,
+      .markdown-content h6 {
+        color: #2c3e50;
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 0.3em;
+      }
+
+      .markdown-content h1 {
+        font-size: 2em;
+      }
+      .markdown-content h2 {
+        font-size: 1.5em;
+      }
+      .markdown-content h3 {
+        font-size: 1.3em;
+      }
+
+      .markdown-content p {
+        margin-bottom: 1em;
+        text-align: justify;
+      }
+
+      .markdown-content code {
+        background-color: #f1f2f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.9em;
+        color: #e74c3c;
+      }
+
+      .markdown-content pre {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 1em 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .markdown-content pre code {
+        background: none;
+        color: inherit;
+        padding: 0;
+      }
+
+      .markdown-content ul,
+      .markdown-content ol {
+        margin: 1em 0;
+        padding-left: 2em;
+      }
+
+      .markdown-content li {
+        margin-bottom: 0.5em;
+      }
+
+      .markdown-content blockquote {
+        border-left: 4px solid #3498db;
+        margin: 1em 0;
+        padding: 1em 20px;
+        background-color: #f8f9fa;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .markdown-content blockquote p {
+        margin: 0;
+      }
+
+      .markdown-content a {
+        color: #3498db;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: border-bottom 0.3s ease;
+      }
+
+      .markdown-content a:hover {
+        border-bottom-color: #3498db;
+      }
+
+      .markdown-content del {
+        color: #7f8c8d;
+        text-decoration: line-through;
+      }
+
+      .markdown-content strong {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+
+      .markdown-content em {
+        color: #e67e22;
+        font-style: italic;
+      }
+
+      .markdown-content strong em,
+      .markdown-content em strong {
+        color: #8e44ad;
+      }
+
+      /* Streaming indicator */
+      .streaming-content {
+        border: 2px solid #3498db;
+        animation: streaming-pulse 1s ease-in-out infinite alternate;
+      }
+
+      @keyframes streaming-pulse {
+        from {
+          border-color: #3498db;
+          box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+        }
+        to {
+          border-color: #2980b9;
+          box-shadow: 0 2px 15px rgba(52, 152, 219, 0.5);
+        }
+      }
+
+      /* Streaming demo styles */
+      .stream-demo {
+        background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+        background-size: 200% 100%;
+        animation: stream-flow 2s linear infinite;
+      }
+
+      @keyframes stream-flow {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      /* LLM typing cursor */
+      .typing-cursor::after {
+        content: '|';
+        color: #3498db;
+        animation: blink 1s infinite;
+        font-weight: bold;
+      }
+
+      @keyframes blink {
+        0%,
+        50% {
+          opacity: 1;
+        }
+        51%,
+        100% {
+          opacity: 0;
+        }
+      }
+
+      /* LLM streaming effect */
+      .llm-streaming {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .llm-streaming::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent);
+        animation: llm-sweep 2s ease-in-out infinite;
+      }
+
+      @keyframes llm-sweep {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <!-- Left Column -->
+      <div class="left-column">
+        <!-- Top Left: Markdown Input -->
+        <div class="input-section">
+          <h3>📝 Markdown Input</h3>
+          <textarea id="markdownInput" placeholder="Enter your markdown here...">
+# Hello Browser! 🌐
+
+This demonstrates **browser compatibility** of the Markdown-HTML library.
+
+## Features Working:
+- ✅ **Bold text**
+- ✅ *Italic text*
+- ✅ `Inline code`
+- ✅ ~~Strikethrough~~
+- ✅ [Links](https://github.com)
+
+### Code Block:
+```javascript
+console.log('This works in browsers!')
+```
+
+> **Note:** This blockquote shows that all features work universally!</textarea
+          >
+          <div class="button-container">
+            <button onclick="processMarkdown()">🔄 Convert to HTML</button>
+            <button onclick="testStreaming()">📡 Test Streaming</button>
+            <button onclick="testScroll()">📜 Test Scroll</button>
+          </div>
+        </div>
+
+        <!-- Bottom Left: Generated HTML -->
+        <div class="output-section">
+          <h3>📄 Generated HTML</h3>
+          <div id="htmlOutput" class="output">
+            Click "Convert to HTML" to see the generated HTML...
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Rendered Output -->
+      <div class="right-column">
+        <div class="input-section">
+          <h3>🎨 Rendered Output</h3>
+          <div id="renderedOutput" class="rendered">
+            Click "Convert to HTML" to see the rendered output...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      // Import the real Markdown-HTML library
+      import { StreamProcessor } from 'http://localhost:8080/dist/index.mjs'
+
+      // Wrap the real StreamProcessor to add styling
+      class StyledStreamProcessor extends StreamProcessor {
+        constructor(options = {}) {
+          super(options)
+        }
+
+        processString(markdown) {
+          const html = super.processString(markdown)
+          return `<div class="markdown-content">${html}</div>`
+        }
+
+        flush() {
+          if (this.buffer) {
+            const html = super.processString(this.buffer)
+            const styledHtml = `<div class="markdown-content streaming-content">${html}</div>`
+            this.outputHandler?.(styledHtml)
+            this.buffer = ''
+          }
+        }
+      }
+
+      // Helper function to auto-scroll to bottom
+      function scrollToBottom(element) {
+        if (element) {
+          // Direct scroll to bottom
+          element.scrollTop = element.scrollHeight
+          console.log('Scrolling:', element.scrollTop, element.scrollHeight, element.clientHeight)
+        }
+      }
+
+      // Make functions available globally
+      window.processMarkdown = function () {
+        const input = document.getElementById('markdownInput').value
+        const output = document.getElementById('htmlOutput')
+        const rendered = document.getElementById('renderedOutput')
+
+        try {
+          const processor = new StyledStreamProcessor()
+          const html = processor.processString(input)
+
+          output.textContent = html
+          rendered.innerHTML = html
+
+          // Auto-scroll to bottom for both outputs after DOM update
+          requestAnimationFrame(() => {
+            scrollToBottom(output)
+            scrollToBottom(rendered)
+          })
+        } catch (error) {
+          alert(`❌ Error: ${error.message}`)
+        }
+      }
+
+      window.testStreaming = function () {
+        const rendered = document.getElementById('renderedOutput')
+
+        try {
+          // LLM-style streaming demo
+          const llmResponse = `# AI Response Demo 🤖
+
+This demonstrates **LLM-style streaming** in browsers, just like ChatGPT!
+
+## How it works:
+- Text appears **character by character**
+- **Real-time rendering** as it streams
+- **Proper styling** maintained throughout
+- **Smooth animations** for better UX
+
+### Features:
+- ✅ **Bold text** appears gradually
+- ✅ *Italic text* streams smoothly
+- ✅ \`Inline code\` renders in real-time
+- ✅ ~~Strikethrough~~ shows progressively
+
+### Code Example:
+\`\`\`javascript
+// This code appears word by word
+const streaming = true
+console.log('LLM streaming works!')
+\`\`\`
+
+> **Note:** This simulates how AI models stream responses to users!`
+
+          // Clear previous output with LLM thinking animation
+          rendered.innerHTML =
+            '<div class="stream-demo llm-streaming" style="padding: 20px; text-align: center;">🤖 AI is thinking...</div>'
+
+          // Create processor once for efficiency
+          const processor = new StyledStreamProcessor()
+
+          // LLM-style character-by-character streaming
+          let currentIndex = 0
+          let currentOutput = ''
+          let isStreaming = true
+
+          const streamCharacter = () => {
+            if (currentIndex >= llmResponse.length) {
+              // Streaming complete - remove typing cursor
+              isStreaming = false
+              const contentDiv = rendered.querySelector('.markdown-content')
+              if (contentDiv) {
+                contentDiv.classList.remove('typing-cursor', 'llm-streaming')
+              }
+              return
+            }
+
+            // Add next character
+            currentOutput += llmResponse[currentIndex]
+            currentIndex++
+
+            try {
+              // Process the current output as markdown using real library
+              let html = processor.processString(currentOutput)
+
+              // Add typing cursor to the end
+              html = html.replace('</div>', '<span class="typing-cursor"></span></div>')
+
+              // Update rendered output
+              rendered.innerHTML = html
+
+              // Auto-scroll to bottom during streaming
+              requestAnimationFrame(() => {
+                scrollToBottom(rendered)
+              })
+
+              // Add LLM streaming effects
+              const contentDiv = rendered.querySelector('.markdown-content')
+              if (contentDiv) {
+                contentDiv.classList.add('llm-streaming', 'streaming-content')
+                setTimeout(() => {
+                  contentDiv.classList.remove('streaming-content')
+                }, 100)
+              }
+            } catch (error) {
+              console.error('Streaming error:', error)
+              // Continue streaming even if there's an error
+            }
+
+            // Continue streaming with fast delays
+            const char = llmResponse[currentIndex - 1]
+            let delay = 5 // base delay
+
+            if (char === ' ') {
+              delay = Math.random() * 10 + 5 // 5-15ms for spaces
+            } else if (char === '\n') {
+              delay = Math.random() * 20 + 10 // 10-30ms for newlines
+            } else if (/[.!?]/.test(char)) {
+              delay = Math.random() * 30 + 15 // 15-45ms for sentence endings
+            } else {
+              delay = Math.random() * 8 + 2 // 2-10ms for regular characters
+            }
+
+            setTimeout(streamCharacter, delay)
+          }
+
+          // Start streaming after a brief pause
+          setTimeout(() => {
+            streamCharacter()
+          }, 1000)
+        } catch (error) {
+          alert(`❌ Streaming error: ${error.message}`)
+        }
+      }
+
+      // Test scroll function
+      window.testScroll = function () {
+        const rendered = document.getElementById('renderedOutput')
+
+        // Create much longer content to ensure scrolling
+        let testContent = '<div class="markdown-content">'
+        testContent += '<h1>📜 Scroll Test</h1>'
+        testContent += '<p>This test creates scrollable content and auto-scrolls to bottom.</p>'
+        testContent +=
+          '<div style="background: #e3f2fd; padding: 10px; border-radius: 4px; margin: 10px 0;">'
+        testContent += '<strong>Scroll Status:</strong> Content height will exceed container height'
+        testContent += '</div>'
+
+        // Add lots of content to force scrolling
+        for (let i = 0; i < 30; i++) {
+          testContent +=
+            '<p>📝 Line ' +
+            (i + 1) +
+            ': This is test content to make the rendered output scrollable.</p>'
+        }
+
+        testContent +=
+          '<div style="background: #c8e6c9; padding: 15px; border-radius: 4px; margin: 20px 0;">'
+        testContent += '<h2>🎯 BOTTOM CONTENT</h2>'
+        testContent += '<p><strong>If you can see this, auto-scroll worked!</strong></p>'
+        testContent +=
+          '<p>Scroll position: ' + rendered.scrollTop + ' / ' + rendered.scrollHeight + '</p>'
+        testContent += '</div>'
+        testContent += '</div>'
+
+        rendered.innerHTML = testContent
+
+        // Force scroll after content is loaded
+        setTimeout(() => {
+          scrollToBottom(rendered)
+          console.log('Test scroll executed:', rendered.scrollTop, rendered.scrollHeight)
+
+          // Update the scroll position display
+          const scrollInfo = rendered.querySelector('p:last-child')
+          if (scrollInfo) {
+            scrollInfo.textContent =
+              'Final scroll position: ' + rendered.scrollTop + ' / ' + rendered.scrollHeight
+          }
+        }, 100)
+      }
+
+      // Auto-convert on page load
+      setTimeout(() => {
+        processMarkdown()
+      }, 100)
+    </script>
+  </body>
+</html>

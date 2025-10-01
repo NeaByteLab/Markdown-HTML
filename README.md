@@ -56,6 +56,27 @@ npm install @neabyte/markdown-html
 - [ESM Non-Streaming](./examples/esm/non-stream.js) - Basic usage example
 - [ESM Streaming](./examples/esm/stream.js) - Streaming with handlers
 
+---
+
+## ⚡ Performance
+
+### 📊 Memory Usage Benchmarks
+
+Performance testing with various document sizes shows memory usage patterns:
+
+**Test Environment:**
+- **Hardware:** MacBook Pro with Apple M3 Pro chip, 18GB RAM
+- **Runtime:** Node.js v22.16.0 on macOS (darwin arm64)
+- **Method:** `process.memoryUsage()` with garbage collection enabled
+
+| Document Size | Markdown | HTML Output | Peak Memory | Memory After GC |
+|---------------|----------|-------------|-------------|-----------------|
+| 19 KB         | 4 MB     | 52 KB       | **6 MB**    | 4 MB            |
+| 96 KB         | 5 MB     | 263 KB      | **14 MB**   | 6 MB            |
+| 193 KB        | 7 MB     | 526 KB      | **32 MB**   | 9 MB            |
+| 392 KB        | 10 MB    | 1058 KB     | **37 MB**   | 12 MB           |
+| **9 MB**      | **34 MB**| **19 MB**   | **537 MB** | **132 MB**       |
+
 ## 🏗️ Architecture
 
 For detailed information about the internal architecture, processor system, and design decisions:

@@ -113,19 +113,16 @@ export class BlockquoteProcessor implements SegmentProcessor {
       if (nextLineStart >= input.length) {
         break
       }
-
       const nextLine: string = this.getNextLine(input, nextLineStart)
       if (!this.shouldContinueProcessing(nextLine, currentLevel)) {
         break
       }
-
       const { level, content }: { level: number; content: string } =
         this.extractBlockquoteInfo(nextLine)
 
       if (!this.shouldCollectLine(level, content, currentLevel)) {
         break
       }
-
       fullContent += this.formatLineContent(content)
       endPos = this.getNextEndPos(input, nextLineStart)
     }
@@ -153,7 +150,6 @@ export class BlockquoteProcessor implements SegmentProcessor {
     if (!line.startsWith('>')) {
       return false
     }
-
     const { level }: { level: number } = this.extractBlockquoteInfo(line)
     return level === currentLevel || level === 0
   }

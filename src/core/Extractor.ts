@@ -1,5 +1,4 @@
-import type { SegmentText } from '@interfaces/Segment'
-import { tokenType } from '@interfaces/index'
+import { tokenType, type SegmentText } from '@interfaces/index'
 import type { SegmentProcessor, ProcessingContext, ProcessingResult } from '@core/processors/Types'
 import {
   BlockquoteProcessor,

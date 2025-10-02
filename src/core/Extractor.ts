@@ -22,6 +22,8 @@ import {
 export class SegmentExtractor {
   /** Array of registered processors */
   private processors: SegmentProcessor[] = []
+  /** Whether processors have been initialized */
+  private processorsReady: boolean = false
   /** Content pending processing */
   private pendingContent: string = ''
   /** Current processing buffer */
@@ -31,17 +33,19 @@ export class SegmentExtractor {
 
   /**
    * Creates a new SegmentExtractor instance.
-   * @description Registers all available processors in priority order.
+   * @description Processors are lazy-loaded on first use.
    */
   constructor() {
-    this.registerProcessors()
+    // Processors will be initialized lazily
   }
 
   /**
-   * Register all available processors in priority order.
-   * CRITICAL FIX: Corrected priority order to prevent conflicts
+   * Lazy-load processors in priority order.
    */
-  private registerProcessors(): void {
+  private initializeProcessors(): void {
+    if (this.processorsReady) {
+      return
+    }
     this.processors = [
       new EscapedCharProcessor(),
       new HeaderProcessor(),
@@ -56,6 +60,7 @@ export class SegmentExtractor {
       new StrikethroughProcessor(),
       new TextProcessor()
     ].sort((a: SegmentProcessor, b: SegmentProcessor) => b.priority - a.priority)
+    this.processorsReady = true
   }
 
   /**
@@ -65,6 +70,7 @@ export class SegmentExtractor {
    * @returns Array of extracted segments
    */
   extractSegments(input: string, isEnd: boolean): SegmentText[] {
+    this.initializeProcessors()
     this.initializeBuffer(input)
     const tokens: SegmentText[] = []
     if (this.buffer.length === 0) {
@@ -92,19 +98,19 @@ export class SegmentExtractor {
    */
   private processBuffer(tokens: SegmentText[], isEnd: boolean): void {
     let consecutiveFailures: number = 0
-    const maxFailures: number = 10
+    const maxFailures: number = this.processors.length + 1
     while (this.position < this.buffer.length && consecutiveFailures < maxFailures) {
       const context: ProcessingContext = this.createProcessingContext(isEnd)
       const result: ProcessingResult | null = this.processCurrentPosition(context)
       if (result) {
         this.handleSuccessfulProcessing(result, tokens)
         consecutiveFailures = 0
-        if (result.pendingContent != null && result.pendingContent.length > 0) {
+        if (result.pendingContent != null && result.pendingContent.length > 0 && !isEnd) {
           this.pendingContent = result.pendingContent
           break
         }
       } else {
-        this.handleFailedProcessing()
+        this.position++
         consecutiveFailures++
       }
     }
@@ -122,28 +128,6 @@ export class SegmentExtractor {
     } else {
       this.position++
     }
-  }
-
-  /**
-   * Handle failed processing by advancing position
-   */
-  private handleFailedProcessing(): void {
-    const char: string = this.buffer[this.position] ?? ''
-    if (this.isWhitespace(char)) {
-      this.position++
-    } else {
-      const nextSafePos: number = this.findNextSafePosition(this.position)
-      this.position = nextSafePos > this.position ? nextSafePos : this.position + 1
-    }
-  }
-
-  /**
-   * Check if character is whitespace
-   * @param char - Character to check
-   * @returns True if whitespace
-   */
-  private isWhitespace(char: string): boolean {
-    return char === ' ' || char === '\t' || char === '\r' || char === '\n'
   }
 
   /**
@@ -167,7 +151,7 @@ export class SegmentExtractor {
    */
   private handleEndOfInput(tokens: SegmentText[]): void {
     const remainingContent: string = this.buffer.slice(this.position).trim()
-    if (remainingContent && tokens.length === 0) {
+    if (remainingContent) {
       tokens.push({ type: tokenType.TEXT, content: remainingContent })
     }
   }
@@ -206,14 +190,5 @@ export class SegmentExtractor {
       }
     }
     return null
-  }
-
-  /**
-   * Finds the next safe position to advance to when no processor matches.
-   * @param currentPos - Current position in buffer
-   * @returns Next safe position to advance to
-   */
-  private findNextSafePosition(currentPos: number): number {
-    return currentPos + 1
   }
 }

@@ -9,16 +9,16 @@ export class Document {
   /** Token manager for handling token navigation */
   private readonly tokenManager: TokenManager
   /** Maximum recursion depth to prevent stack overflow */
-  private readonly maxDepth: number = 50
+  private readonly maxDepth: number = 10
   /** Current recursion depth */
   private depth: number = 0
 
   /**
    * Creates a new Document parser instance.
    * @param tokens - Array of markdown tokens to parse
-   * @param maxDepth - Maximum recursion depth (default: 50)
+   * @param maxDepth - Maximum recursion depth (default: 10)
    */
-  constructor(tokens: SegmentText[] = [], maxDepth: number = 50) {
+  constructor(tokens: SegmentText[] = [], maxDepth: number = 10) {
     this.tokenManager = new TokenManager(tokens)
     this.maxDepth = maxDepth
   }

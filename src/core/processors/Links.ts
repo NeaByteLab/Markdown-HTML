@@ -6,15 +6,10 @@ import type { SegmentProcessor, ProcessingResult } from '@core/processors/Types'
  * @description Processes both inline links [text](url) and reference links [text][ref].
  */
 export class LinksProcessor implements SegmentProcessor {
+  /** Safe protocols that should be allowed */
+  private static readonly SAFE_PROTOCOLS: readonly string[] = Object.freeze(['http:', 'https:'])
   /** Priority for processing order (higher = processed first) */
   priority: number = 4
-
-  /** Dangerous protocols that should be blocked for security */
-  private static readonly DANGEROUS_PROTOCOLS: readonly string[] = Object.freeze([
-    'javascript' + ':',
-    'data' + ':',
-    'vbscript' + ':'
-  ])
 
   /**
    * Checks if this processor can handle the current character.
@@ -89,8 +84,8 @@ export class LinksProcessor implements SegmentProcessor {
    */
   private sanitizeUrl(url: string): string {
     const lowerUrl: string = url.toLowerCase()
-    for (const protocol of LinksProcessor.DANGEROUS_PROTOCOLS) {
-      if (lowerUrl.startsWith(protocol)) {
+    for (const protocol of LinksProcessor.SAFE_PROTOCOLS) {
+      if (!lowerUrl.startsWith(protocol)) {
         return '#'
       }
     }

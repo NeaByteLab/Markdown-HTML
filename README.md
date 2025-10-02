@@ -11,11 +11,18 @@ Converts Markdown text to HTML syntax with TypeScript type safety, streaming sup
 ## 🚀 Quick Start
 
 ```typescript
-import { StreamProcessor } from '@neabyte/markdown-html'
+import MarkdownHTML from '@neabyte/markdown-html'
 
-const processor = new StreamProcessor()
-const html = processor.processString('# Hello **World**')
+// Simple static API
+const html = MarkdownHTML.parse('# Hello **World**')
 console.log(html) // <div class="markdown-content"><h1>Hello <strong>World</strong></h1></div>
+
+// Streaming API with configurable chunk size
+MarkdownHTML.stream(markdown, {
+  chunkSize: 1000, // 1k-1M characters per chunk
+  outputHandler: (chunk) => console.log(chunk),
+  errorHandler: (error) => console.error(error)
+})
 ```
 
 ## 📦 Installation
@@ -29,14 +36,20 @@ npm install @neabyte/markdown-html
 ```html
 <!-- ES Modules (Recommended) -->
 <script type="module">
-  import { StreamProcessor } from 'https://cdn.jsdelivr.net/npm/@neabyte/markdown-html/+esm'
+  import MarkdownHTML from 'https://cdn.jsdelivr.net/npm/@neabyte/markdown-html/+esm'
   // or
-  import { StreamProcessor } from 'https://esm.sh/@neabyte/markdown-html'
+  import MarkdownHTML from 'https://esm.sh/@neabyte/markdown-html'
   // or
-  import { StreamProcessor } from 'https://esm.run/@neabyte/markdown-html'
+  import MarkdownHTML from 'https://esm.run/@neabyte/markdown-html'
 
-  const processor = new StreamProcessor()
-  const html = processor.processString('# Hello World')
+  // Simple static API
+  const html = MarkdownHTML.parse('# Hello World')
+
+  // Streaming API with configurable chunk size
+  MarkdownHTML.stream(markdown, {
+    chunkSize: 1000, // 1k-1M characters per chunk
+    outputHandler: (chunk) => document.body.innerHTML += chunk
+  })
 </script>
 ```
 
@@ -56,6 +69,35 @@ npm install @neabyte/markdown-html
 - [ESM Non-Streaming](./examples/esm/non-stream.js) - Basic usage example
 - [ESM Streaming](./examples/esm/stream.js) - Streaming with handlers
 
+### ⚙️ Configurable Chunk Sizes
+
+**Streaming with different chunk sizes for optimal performance:**
+
+```typescript
+// Real-time chat (1k chunks)
+MarkdownHTML.stream(markdown, {
+  chunkSize: 1000,
+  outputHandler: (chunk) => updateChat(chunk)
+})
+
+// Progressive loading (10k chunks)
+MarkdownHTML.stream(markdown, {
+  chunkSize: 10000,
+  outputHandler: (chunk) => updateUI(chunk)
+})
+
+// Batch processing (1M chunks - fastest)
+MarkdownHTML.stream(markdown, {
+  chunkSize: 1000000,
+  outputHandler: (chunk) => processBatch(chunk)
+})
+```
+
+**Chunk Size Guidelines:**
+- **1k-10k**: Real-time applications, chat interfaces
+- **10k-100k**: Progressive loading, medium documents
+- **100k-1M**: Large documents, batch processing (fastest performance)
+
 ---
 
 ## ⚡ Performance
@@ -69,13 +111,13 @@ Performance testing with various document sizes shows memory usage patterns:
 - **Runtime:** Node.js v22.16.0 on macOS (darwin arm64)
 - **Method:** `process.memoryUsage()` with garbage collection enabled
 
-| Document Size | Markdown | HTML Output | Peak Memory | Memory After GC |
-|---------------|----------|-------------|-------------|-----------------|
-| 19 KB         | 4 MB     | 52 KB       | **6 MB**    | 4 MB            |
-| 96 KB         | 5 MB     | 263 KB      | **14 MB**   | 6 MB            |
-| 193 KB        | 7 MB     | 526 KB      | **32 MB**   | 9 MB            |
-| 392 KB        | 10 MB    | 1058 KB     | **37 MB**   | 12 MB           |
-| **9 MB**      | **34 MB**| **19 MB**   | **537 MB** | **132 MB**       |
+| Document Size | Input Size | HTML Output | Processing Time | Speed |
+|---------------|------------|-------------|----------------|-------|
+| Small         | 18.95 KB   | 19.91 KB    | **0.41ms**     | **46k chars/ms** |
+| Medium        | 94.02 KB   | 95.81 KB    | **0.40ms**     | **235k chars/ms** |
+| Large         | 188.57 KB  | 191.37 KB   | **0.52ms**     | **363k chars/ms** |
+| Extra Large   | 382.81 KB  | 387.68 KB   | **0.62ms**     | **617k chars/ms** |
+| Massive       | 8.39 MB    | 8.48 MB     | **7.36ms**     | **1.14M chars/ms** |
 
 ## 🏗️ Architecture
 

@@ -34,30 +34,24 @@ The `package.json` includes:
 
 ### Basic Usage
 ```javascript
-import { SegmentExtractor, Document, Element, Generator } from '@neabyte/markdown-html'
+import MarkdownHTML from '@neabyte/markdown-html'
 
 const markdown = `# Hello World`
-const segments = new SegmentExtractor().extractSegments(markdown, true)
-const ast = new Document(segments).buildDocumentTree()
-const htmlTree = new Element().convertToHtml(ast)
-const html = new Generator().generateString(htmlTree)
+const html = MarkdownHTML.parse(markdown)
+console.log(html)
 ```
 
 ### Streaming Usage
 ```javascript
-import { StreamProcessor } from '@neabyte/markdown-html'
+import MarkdownHTML from '@neabyte/markdown-html'
 
-// Method 1: Simple string processing
-const processor = new StreamProcessor()
-const html = processor.processString(markdown)
+// Method 1: Simple string processing (same as parse)
+const html = MarkdownHTML.parse(markdown)
 
-// Method 2: Streaming with handlers
-const streamProcessor = new StreamProcessor({
+// Method 2: Streaming with handlers and chunking
+MarkdownHTML.stream(markdown, {
   outputHandler: (chunk) => console.log('Output:', chunk),
-  errorHandler: (error) => console.error('Error:', error)
+  errorHandler: (error) => console.error('Error:', error),
+  chunkSize: 1000 // Process in 1KB chunks
 })
-
-streamProcessor.process('# Header\n')
-streamProcessor.process('**Bold** text')
-streamProcessor.flush()
 ```

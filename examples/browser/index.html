@@ -382,27 +382,11 @@ console.log('This works in browsers!')
 
     <script type="module">
       // Import the real Markdown-HTML library
-      import { StreamProcessor } from 'http://localhost:8080/dist/index.mjs'
+      import MarkdownHTML from 'http://localhost:8080/dist/index.mjs'
 
-      // Wrap the real StreamProcessor to add styling
-      class StyledStreamProcessor extends StreamProcessor {
-        constructor(options = {}) {
-          super(options)
-        }
-
-        processString(markdown) {
-          const html = super.processString(markdown)
-          return `<div class="markdown-content">${html}</div>`
-        }
-
-        flush() {
-          if (this.buffer) {
-            const html = super.processString(this.buffer)
-            const styledHtml = `<div class="markdown-content streaming-content">${html}</div>`
-            this.outputHandler?.(styledHtml)
-            this.buffer = ''
-          }
-        }
+      // Helper function to add styling wrapper
+      function addStyling(html) {
+        return `<div class="markdown-content">${html}</div>`
       }
 
       // Helper function to auto-scroll to bottom
@@ -421,11 +405,12 @@ console.log('This works in browsers!')
         const rendered = document.getElementById('renderedOutput')
 
         try {
-          const processor = new StyledStreamProcessor()
-          const html = processor.processString(input)
+          // Use new static API
+          const html = MarkdownHTML.parse(input)
+          const styledHtml = addStyling(html)
 
-          output.textContent = html
-          rendered.innerHTML = html
+          output.textContent = styledHtml
+          rendered.innerHTML = styledHtml
 
           // Auto-scroll to bottom for both outputs after DOM update
           requestAnimationFrame(() => {
@@ -442,37 +427,11 @@ console.log('This works in browsers!')
 
         try {
           // LLM-style streaming demo
-          const llmResponse = `# AI Response Demo 🤖
-
-This demonstrates **LLM-style streaming** in browsers, just like ChatGPT!
-
-## How it works:
-- Text appears **character by character**
-- **Real-time rendering** as it streams
-- **Proper styling** maintained throughout
-- **Smooth animations** for better UX
-
-### Features:
-- ✅ **Bold text** appears gradually
-- ✅ *Italic text* streams smoothly
-- ✅ \`Inline code\` renders in real-time
-- ✅ ~~Strikethrough~~ shows progressively
-
-### Code Example:
-\`\`\`javascript
-// This code appears word by word
-const streaming = true
-console.log('LLM streaming works!')
-\`\`\`
-
-> **Note:** This simulates how AI models stream responses to users!`
+          const llmResponse = document.getElementById('markdownInput').value
 
           // Clear previous output with LLM thinking animation
           rendered.innerHTML =
             '<div class="stream-demo llm-streaming" style="padding: 20px; text-align: center;">🤖 AI is thinking...</div>'
-
-          // Create processor once for efficiency
-          const processor = new StyledStreamProcessor()
 
           // LLM-style character-by-character streaming
           let currentIndex = 0
@@ -495,8 +454,9 @@ console.log('LLM streaming works!')
             currentIndex++
 
             try {
-              // Process the current output as markdown using real library
-              let html = processor.processString(currentOutput)
+              // Process the current output as markdown using new static API
+              let html = MarkdownHTML.parse(currentOutput)
+              html = addStyling(html)
 
               // Add typing cursor to the end
               html = html.replace('</div>', '<span class="typing-cursor"></span></div>')

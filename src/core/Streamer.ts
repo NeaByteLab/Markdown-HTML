@@ -58,18 +58,14 @@ export class StreamProcessor {
   /**
    * Flushes remaining buffer content and generates final HTML output.
    * @param callback - Optional callback to signal completion or error
+   * @param chunkSize - Size of each chunk in characters (min: 1000, max: 1000000)
    */
-  flush(callback?: (error?: Error) => void): void {
+  flush(callback?: (error?: Error) => void, chunkSize: number = 1000): void {
     try {
       if (this.buffer.length > 0) {
         const tokens: SegmentText[] = this.tokenizer.extractSegments(this.buffer, true)
         if (tokens.length > 0) {
-          const ast: ParserNode = this.parser.buildDocumentTree(tokens)
-          const renderTree: ElementHTML = this.transformer.convertToHtml(ast)
-          const html: string = this.renderer.generateString(renderTree)
-          if (html.length > 0) {
-            this.outputHandler?.(html)
-          }
+          this.processTokensStreaming(tokens, chunkSize)
         }
         this.buffer = ''
       }
@@ -78,6 +74,24 @@ export class StreamProcessor {
       const err: Error = error instanceof Error ? error : new Error(String(error))
       this.errorHandler?.(err)
       callback?.(err)
+    }
+  }
+
+  /**
+   * Processes tokens with chunked streaming output.
+   * @param tokens - Array of tokens to process
+   * @param chunkSize - Size of each chunk in characters (min: 1000, max: 1000000)
+   */
+  private processTokensStreaming(tokens: SegmentText[], chunkSize: number = 1000): void {
+    const clampedChunkSize: number = Math.max(1000, Math.min(1000000, chunkSize))
+    const ast: ParserNode = this.parser.buildDocumentTree(tokens)
+    const renderTree: ElementHTML = this.transformer.convertToHtml(ast)
+    const fullHtml: string = this.renderer.generateString(renderTree)
+    for (let i: number = 0; i < fullHtml.length; i += clampedChunkSize) {
+      const chunk: string = fullHtml.slice(i, i + clampedChunkSize)
+      if (chunk.length > 0) {
+        this.outputHandler?.(chunk)
+      }
     }
   }
 

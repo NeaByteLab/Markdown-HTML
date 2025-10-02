@@ -1,6 +1,6 @@
 {
   "name": "@neabyte/markdown-html",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Markdown to HTML converter with TypeScript types, streaming support, and universal module compatibility",
   "type": "module",
   "main": "dist/index.cjs",

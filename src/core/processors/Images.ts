@@ -6,15 +6,10 @@ import type { SegmentProcessor, ProcessingContext, ProcessingResult } from '@cor
  * @description Processes both inline images ![alt](src) and reference images ![alt][ref].
  */
 export class ImagesProcessor implements SegmentProcessor {
+  /** Safe protocols that should be allowed */
+  private static readonly SAFE_PROTOCOLS: readonly string[] = Object.freeze(['http:', 'https:'])
   /** Priority for processing order (higher = processed first) */
   priority: number = 5
-
-  /** Dangerous protocols that should be blocked for security */
-  private static readonly DANGEROUS_PROTOCOLS: readonly string[] = Object.freeze([
-    'javascript' + ':',
-    'data' + ':',
-    'vbscript' + ':'
-  ])
 
   /**
    * Checks if this processor can handle the current character.
@@ -90,8 +85,8 @@ export class ImagesProcessor implements SegmentProcessor {
    */
   private sanitizeImageSrc(src: string): string {
     const lowerSrc: string = src.toLowerCase()
-    for (const protocol of ImagesProcessor.DANGEROUS_PROTOCOLS) {
-      if (lowerSrc.startsWith(protocol)) {
+    for (const protocol of ImagesProcessor.SAFE_PROTOCOLS) {
+      if (!lowerSrc.startsWith(protocol)) {
         return '#'
       }
     }

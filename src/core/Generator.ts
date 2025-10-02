@@ -43,7 +43,7 @@ export class Generator {
         this.generateNode(child)
       }
     }
-    this.buffer.push('</', node.tag, '>')
+    this.buffer.push(`</${node.tag}>`)
   }
 
   /**
@@ -52,11 +52,21 @@ export class Generator {
    * @returns Sanitized HTML-safe string
    */
   private sanitizeContent(unsafe: string): string {
-    return unsafe
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
+    return unsafe.replace(/[&<>"']/g, (char: string) => {
+      switch (char) {
+        case '&':
+          return '&amp;'
+        case '<':
+          return '&lt;'
+        case '>':
+          return '&gt;'
+        case '"':
+          return '&quot;'
+        case '\'':
+          return '&#039;'
+        default:
+          return char
+      }
+    })
   }
 }

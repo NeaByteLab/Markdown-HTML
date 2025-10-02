@@ -9,8 +9,11 @@
     "baseUrl": ".",
     "paths": {
       "@root/*": ["src/*"],
+      "@builders/*": ["src/builders/*"],
       "@core/*": ["src/core/*"],
-      "@interfaces/*": ["src/interfaces/*"]
+      "@interfaces/*": ["src/interfaces/*"],
+      "@processors/*": ["src/processors/*"],
+      "@utils/*": ["src/utils/*"]
     },
     "tsBuildInfoFile": ".tsbuildinfo",
     "importsNotUsedAsValues": "remove",

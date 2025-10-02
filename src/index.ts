@@ -8,10 +8,11 @@ export default class MarkdownHTML {
   /**
    * Parse markdown string to HTML
    * @param markdown - Markdown string to convert
+   * @param options - Configuration options
    * @returns Generated HTML string
    */
-  static parse(markdown: string): string {
-    return new StreamProcessor().processString(markdown)
+  static parse(markdown: string, options?: { sanitization?: boolean }): string {
+    return new StreamProcessor(options).processString(markdown)
   }
 
   /**
@@ -26,6 +27,7 @@ export default class MarkdownHTML {
     options?: {
       outputHandler?: (chunk: string) => void
       errorHandler?: (error: Error) => void
+      sanitization?: boolean
       chunkSize?: number
     }
   ): StreamProcessor {

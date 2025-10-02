@@ -60,10 +60,9 @@ export class Element {
           tag: 'br',
           selfClosing: true
         }
-
       case DocumentType.TEXT:
         return {
-          tag: 'span',
+          tag: 'text',
           content: node.value ?? ''
         }
       case DocumentType.INLINE_CODE:
@@ -79,7 +78,6 @@ export class Element {
       case DocumentType.EMPHASIS: {
         const isBoldItalic: boolean = node.value === '***'
         const isBold: boolean = node.value === '**'
-
         if (isBoldItalic) {
           return {
             tag: 'strong',

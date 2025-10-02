@@ -28,12 +28,13 @@ export class StreamProcessor {
   constructor(options?: {
     outputHandler?: (chunk: string) => void
     errorHandler?: (error: Error) => void
+    sanitization?: boolean
   }) {
     this.buffer = ''
-    this.tokenizer = new SegmentExtractor()
+    this.tokenizer = new SegmentExtractor(options?.sanitization)
     this.parser = new Document([])
     this.transformer = new Element()
-    this.renderer = new Generator()
+    this.renderer = new Generator(options?.sanitization)
     this.outputHandler = options?.outputHandler ?? undefined
     this.errorHandler = options?.errorHandler ?? undefined
   }

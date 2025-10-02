@@ -8,23 +8,6 @@ Converts Markdown text to HTML syntax with TypeScript type safety, streaming sup
 
 > *Live demo showing LLM-style streaming markdown to HTML conversion with real-time rendering*
 
-## 🚀 Quick Start
-
-```typescript
-import MarkdownHTML from '@neabyte/markdown-html'
-
-// Simple static API
-const html = MarkdownHTML.parse('# Hello **World**')
-console.log(html) // <div class="markdown-content"><h1>Hello <strong>World</strong></h1></div>
-
-// Streaming API with configurable chunk size
-MarkdownHTML.stream(markdown, {
-  chunkSize: 1000, // 1k-1M characters per chunk
-  outputHandler: (chunk) => console.log(chunk),
-  errorHandler: (error) => console.error(error)
-})
-```
-
 ## 📦 Installation
 
 ### NPM
@@ -41,17 +24,31 @@ npm install @neabyte/markdown-html
   import MarkdownHTML from 'https://esm.sh/@neabyte/markdown-html'
   // or
   import MarkdownHTML from 'https://esm.run/@neabyte/markdown-html'
-
-  // Simple static API
-  const html = MarkdownHTML.parse('# Hello World')
-
-  // Streaming API with configurable chunk size
-  MarkdownHTML.stream(markdown, {
-    chunkSize: 1000, // 1k-1M characters per chunk
-    outputHandler: (chunk) => document.body.innerHTML += chunk
-  })
 </script>
 ```
+
+## 🚀 Quick Start
+
+```typescript
+import MarkdownHTML from '@neabyte/markdown-html'
+
+// Simple static API
+const html = MarkdownHTML.parse('# Hello **World**')
+console.log(html) // <div class="markdown-content"><h1>Hello <strong>World</strong></h1></div>
+
+// With security sanitization enabled
+const secureHtml = MarkdownHTML.parse('# Hello **World**', { sanitization: true })
+
+// Streaming API with configurable chunk size and sanitization
+MarkdownHTML.stream(markdown, {
+  chunkSize: 1000, // 1k-1M characters per chunk
+  sanitization: false, // Default: no sanitization
+  outputHandler: (chunk) => console.log(chunk),
+  errorHandler: (error) => console.error(error)
+})
+```
+
+---
 
 ## 📚 Examples
 
@@ -69,7 +66,9 @@ npm install @neabyte/markdown-html
 - [ESM Non-Streaming](./examples/esm/non-stream.js) - Basic usage example
 - [ESM Streaming](./examples/esm/stream.js) - Streaming with handlers
 
-### ⚙️ Configurable Chunk Sizes
+---
+
+## ⚙️ Configurable Chunk Sizes
 
 **Streaming with different chunk sizes for optimal performance:**
 
@@ -98,26 +97,37 @@ MarkdownHTML.stream(markdown, {
 - **10k-100k**: Progressive loading, medium documents
 - **100k-1M**: Large documents, batch processing (fastest performance)
 
+## 🛡️ Security & Sanitization
+
+**Optional security features:**
+
+```typescript
+// Default behavior (no sanitization)
+const html = MarkdownHTML.parse(markdown)
+// → Raw HTML output, all URLs allowed
+
+// Security enabled
+const secureHtml = MarkdownHTML.parse(markdown, { sanitization: true })
+// → XSS protection + URL validation
+```
+
+**Security Features:**
+- **JavaScript Protocol Blocking**: Removes `javascript:` URLs
+- **XSS Protection**: Escapes 20+ dangerous characters (`<`, `>`, `&`, `"`, etc.)
+- **Event Handler Removal**: Strips all event handlers (`onclick`, `onerror`, `onload`, etc.)
+- **URL Validation**: Only allows safe protocols (`http:`, `https:`, `mailto:`, `tel:`)
+- **Path Traversal Prevention**: Blocks **ALL** `../` navigation (zero tolerance)
+- **Home Directory Protection**: Blocks `~/` paths to prevent system access
+
 ---
 
 ## ⚡ Performance
 
-### 📊 Memory Usage Benchmarks
+For detailed performance benchmarks, testing methodology, and comparison with other markdown libraries:
 
-Performance testing with various document sizes shows memory usage patterns:
+- [Performance Benchmarks](./BENCHMARK.md) - Complete performance analysis
 
-**Test Environment:**
-- **Hardware:** MacBook Pro with Apple M3 Pro chip, 18GB RAM
-- **Runtime:** Node.js v22.16.0 on macOS (darwin arm64)
-- **Method:** `process.memoryUsage()` with garbage collection enabled
-
-| Document Size | Input Size | HTML Output | Processing Time | Speed |
-|---------------|------------|-------------|----------------|-------|
-| Small         | 18.95 KB   | 19.91 KB    | **0.41ms**     | **46k chars/ms** |
-| Medium        | 94.02 KB   | 95.81 KB    | **0.40ms**     | **235k chars/ms** |
-| Large         | 188.57 KB  | 191.37 KB   | **0.52ms**     | **363k chars/ms** |
-| Extra Large   | 382.81 KB  | 387.68 KB   | **0.62ms**     | **617k chars/ms** |
-| Massive       | 8.39 MB    | 8.48 MB     | **7.36ms**     | **1.14M chars/ms** |
+---
 
 ## 🏗️ Architecture
 

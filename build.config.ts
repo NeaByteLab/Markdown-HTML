@@ -23,10 +23,16 @@ export default defineBuildConfig({
    * @type {Record<string, string>} Map of alias names to their resolved paths
    */
   alias: {
+    /** @type {string} Alias for builders directory */
+    '@builders': resolve(__dirname, 'src/builders'),
     /** @type {string} Alias for core directory */
     '@core': resolve(__dirname, 'src/core'),
     /** @type {string} Alias for interfaces directory */
-    '@interfaces': resolve(__dirname, 'src/interfaces')
+    '@interfaces': resolve(__dirname, 'src/interfaces'),
+    /** @type {string} Alias for processors directory */
+    '@processors': resolve(__dirname, 'src/processors'),
+    /** @type {string} Alias for utils directory */
+    '@utils': resolve(__dirname, 'src/utils')
   },
   rollup: {
     emitCJS: true,

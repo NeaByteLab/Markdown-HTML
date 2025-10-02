@@ -1,5 +1,4 @@
 import { tokenType, type SegmentText } from '@interfaces/index'
-import type { SegmentProcessor, ProcessingContext, ProcessingResult } from '@core/processors/Types'
 import {
   BlockquoteProcessor,
   CodeBlockProcessor,
@@ -12,8 +11,11 @@ import {
   LinksProcessor,
   ListsProcessor,
   StrikethroughProcessor,
-  TextProcessor
-} from '@core/processors/index'
+  TextProcessor,
+  type SegmentProcessor,
+  type ProcessingContext,
+  type ProcessingResult
+} from '@processors/index'
 
 /**
  * Main orchestrator for extracting markdown segments.
@@ -30,12 +32,16 @@ export class SegmentExtractor {
   private buffer: string = ''
   /** Current position in buffer */
   private position: number = 0
+  /** Whether to enable URL sanitization */
+  private readonly sanitizationEnabled: boolean
 
   /**
    * Creates a new SegmentExtractor instance.
+   * @param sanitization - Whether to enable URL sanitization (default: false)
    * @description Processors are lazy-loaded on first use.
    */
-  constructor() {
+  constructor(sanitization: boolean = false) {
+    this.sanitizationEnabled = sanitization
     // Processors will be initialized lazily
   }
 
@@ -53,8 +59,8 @@ export class SegmentExtractor {
       new CodeBlockProcessor(),
       new ListsProcessor(),
       new HorizontalRuleProcessor(),
-      new ImagesProcessor(),
-      new LinksProcessor(),
+      new ImagesProcessor(this.sanitizationEnabled),
+      new LinksProcessor(this.sanitizationEnabled),
       new InlineCodeProcessor(),
       new EmphasisProcessor(),
       new StrikethroughProcessor(),

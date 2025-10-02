@@ -1,5 +1,5 @@
 import { parserNodeType, type ParserNode, type SegmentText } from '@interfaces/index'
-import { Paragraph, List, TokenManager, NodeUtils, NodeFactory } from '@core/builders'
+import { Paragraph, List, TokenManager, NodeUtils, NodeFactory } from '@builders/index'
 
 /**
  * Document parser that converts markdown tokens into a structured AST.

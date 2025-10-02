@@ -1,4 +1,10 @@
-import { tokenType, type SegmentText } from '@interfaces/index'
+import {
+  tokenType,
+  type ProcessingContext,
+  type ProcessingResult,
+  type SegmentProcessor,
+  type SegmentText
+} from '@interfaces/index'
 import {
   BlockquoteProcessor,
   CodeBlockProcessor,
@@ -11,10 +17,7 @@ import {
   LinksProcessor,
   ListsProcessor,
   StrikethroughProcessor,
-  TextProcessor,
-  type SegmentProcessor,
-  type ProcessingContext,
-  type ProcessingResult
+  TextProcessor
 } from '@processors/index'
 
 /**

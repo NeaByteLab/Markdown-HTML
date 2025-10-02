@@ -1,5 +1,10 @@
-import { tokenType, type SegmentText } from '@interfaces/index'
-import type { SegmentProcessor, ProcessingContext, ProcessingResult } from '@processors/index'
+import {
+  tokenType,
+  type ProcessingContext,
+  type ProcessingResult,
+  type SegmentProcessor,
+  type SegmentText
+} from '@interfaces/index'
 
 /**
  * Processor for header segments (# headers).

@@ -1,3 +1,5 @@
+import type { ProcessingContext, ProcessingResult } from '@interfaces/Processor'
+
 /** Token type enum for backward compatibility */
 export enum TokenType {
   BLOCKQUOTE = 'blockquote',
@@ -25,6 +27,18 @@ export type SegmentText<T extends TokenType = TokenType> = {
   content: string
   /** Optional metadata for the segment */
   metadata?: Record<string, unknown>
+}
+
+/**
+ * Base interface for all segment processors.
+ */
+export interface SegmentProcessor {
+  /** Check if this processor can handle the current character */
+  canProcess(char: string, context?: ProcessingContext): boolean
+  /** Process the segment and return tokens */
+  process(input: string, start: number, context: ProcessingContext): ProcessingResult
+  /** Priority for processing order (higher = processed first) */
+  priority: number
 }
 
 /** Token type enum alias for backward compatibility */

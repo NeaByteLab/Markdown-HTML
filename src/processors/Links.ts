@@ -1,5 +1,4 @@
-import { tokenType } from '@interfaces/index'
-import type { SegmentProcessor, ProcessingResult } from '@processors/index'
+import { tokenType, type ProcessingResult, type SegmentProcessor } from '@interfaces/index'
 import { sanitizeUrl } from '@utils/index'
 
 /**

@@ -27,15 +27,3 @@ export interface ProcessingResult {
   /** Pending content for later processing */
   pendingContent?: string
 }
-
-/**
- * Base interface for all segment processors.
- */
-export interface SegmentProcessor {
-  /** Check if this processor can handle the current character */
-  canProcess(char: string, context?: ProcessingContext): boolean
-  /** Process the segment and return tokens */
-  process(input: string, start: number, context: ProcessingContext): ProcessingResult
-  /** Priority for processing order (higher = processed first) */
-  priority: number
-}

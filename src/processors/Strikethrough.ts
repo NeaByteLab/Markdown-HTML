@@ -1,5 +1,9 @@
-import { tokenType } from '@interfaces/index'
-import type { SegmentProcessor, ProcessingContext, ProcessingResult } from '@processors/index'
+import {
+  tokenType,
+  type ProcessingContext,
+  type ProcessingResult,
+  type SegmentProcessor
+} from '@interfaces/index'
 
 /**
  * Processor for strikethrough segments (~~strikethrough~~).
